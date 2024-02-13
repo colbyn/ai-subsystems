@@ -1,0 +1,4 @@
+/target
+api.secret.key
+/secrets
+.DS_Store
