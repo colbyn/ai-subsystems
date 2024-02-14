@@ -1,4 +1,4 @@
-pub mod text_api;
+use ai_subsystems::text_api;
 use colored::Colorize;
 
 #[tokio::main]
@@ -17,7 +17,8 @@ async fn main() -> Result<(), text_api::client::Error> {
         .with_request_body(request)
         .with_api_key(api_key)
         .with_api_url(api_url)
-        .with_stderr_logger()
+        .with_logger(text_api::client::StdOutLogger::default())
+        // .with_logger(text_api::client::FileLogger::new("logs/output.txt"))
         .build_streaming_api_call()
         // .build_batch_api_call()
         .unwrap()
@@ -27,11 +28,9 @@ async fn main() -> Result<(), text_api::client::Error> {
     match results {
         Ok(collection) => {
             println!("{collection:#?}");
-            // if let Some(output) = collection.content(0) {
-            //     println!("{output}");
-            // } else {
-            //     println!("None");
-            // }
+            if let Some(output) = collection.content(0) {
+                println!("{output}");
+            }
         }
         Err(x) => {
             println!("{}", "ERROR".red());

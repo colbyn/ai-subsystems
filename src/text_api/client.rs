@@ -1,8 +1,6 @@
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell, path::Path};
 use colored::Colorize;
 use futures::{StreamExt, TryFutureExt};
-// use futures::Stream;
-// use futures::StreamExt;
 
 use super::response;
 
@@ -20,9 +18,7 @@ pub struct ApiCallBuilder {
     pub api_key: Option<String>,
     pub request_body: Option<super::request::RequestBuilder>,
     pub timeout: Option<std::time::Duration>,
-    pub logger: Option<Rc<RefCell<dyn FnMut(&str) -> ()>>>,
-    pub used_default_logger: bool,
-    pub colorize_output: bool,
+    pub logger: Option<Box<dyn Logger>>,
 }
 
 impl ApiCallBuilder {
@@ -42,29 +38,9 @@ impl ApiCallBuilder {
         self.timeout = Some(timeout);
         self
     }
-    pub fn with_logger(mut self, logger: Rc<RefCell<dyn FnMut(&str) -> ()>>) -> Self {
+    pub fn with_logger(mut self, logger: impl Logger + 'static) -> Self {
+        let logger: Box<dyn Logger> = Box::new(logger);
         self.logger = Some(logger);
-        self
-    }
-    pub fn with_stderr_logger(mut self) -> Self {
-        let colorize_output = self.colorize_output;
-        let callback = move |msg: &str| {
-            if colorize_output {
-                let msg = msg.truecolor(197, 191, 201);
-                eprint!("{msg}");
-                return
-            }
-            eprint!("{msg}")
-        };
-        self.logger = Some(Rc::new(RefCell::new(callback)));
-        self.used_default_logger = true;
-        self.colorize_output = true;
-        self
-    }
-    /// Call this with the value `false` before calling `with_stderr_logger` to turn off colorized output.
-    /// Note that the default may change.
-    pub fn colorize_output(mut self, yes: bool) -> Self {
-        self.colorize_output = yes;
         self
     }
     fn build(self) -> Option<IApiCall> {
@@ -73,8 +49,7 @@ impl ApiCallBuilder {
         let request_body = self.request_body?.build()?;
         let timeout = self.timeout;
         let logger = self.logger;
-        let used_default_logger = self.used_default_logger;
-        let client = IApiCall { api_url, api_key, request_body, timeout, logger, used_default_logger };
+        let client = IApiCall { api_url, api_key, request_body, timeout, logger };
         Some(client)
     }
     pub fn build_batch_api_call(self) -> Option<BatchApiCall> {
@@ -88,14 +63,77 @@ impl ApiCallBuilder {
 //―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
 // TODO
 //―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+pub trait Logger {
+    fn log(&self, msg: &str);
+}
+
+impl Logger for StdOutLogger {
+    fn log(&self, msg: &str) {
+        if self.colorize {
+            let msg = msg.truecolor(197, 191, 201);
+            print!("{msg}");
+            return
+        }
+        print!("{msg}");
+    }
+}
+impl Logger for FileLogger {
+    fn log(&self, msg: &str) {
+        use std::io::Write;
+        let _ = write!(&self.file, "{msg}").unwrap();
+    }
+}
+
+//―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+// TODO
+//―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+#[derive(Debug)]
+pub struct FileLogger {
+    pub file: std::fs::File,
+}
+
+impl FileLogger {
+    pub fn new(file_path: impl AsRef<Path>) -> Self {
+        let file_path = file_path.as_ref();
+        if let Some(parent) = file_path.parent() {
+            std::fs::create_dir_all(parent).unwrap();
+        }
+        let file = std::fs::OpenOptions::new()
+            .create(true)
+            .write(true)
+            .append(true)
+            .open(file_path)
+            .unwrap();
+        FileLogger { file }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct StdOutLogger {
+    pub colorize: bool,
+}
+
+impl StdOutLogger {
+    pub fn new() -> Self { Self::default() }
+}
+
+impl Default for StdOutLogger {
+    fn default() -> Self {
+        Self { colorize: true }
+    }
+}
+
+
+//―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+// TODO
+//―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
 /// This should be called ‘Request but it’s already taken.
 struct IApiCall {
     pub api_url: URL,
     pub api_key: String,
     pub request_body: super::request::Request,
     pub timeout: Option<std::time::Duration>,
-    pub logger: Option<Rc<RefCell<dyn FnMut(&str) -> ()>>>,
-    pub used_default_logger: bool,
+    pub logger: Option<Box<dyn Logger>>,
 }
 
 #[derive(Debug, Clone)]
@@ -231,16 +269,15 @@ impl StreamingApiCall {
                         .filter_map(|x| x.delta.content.clone())
                         .collect::<String>();
                     if let Some(logger) = logger.as_ref() {
-                        let mut logger = logger.borrow_mut();
-                        logger(&msg);
+                        logger.log(&msg);
                     }
                     Some(json)
                 })
                 .collect::<Vec<_>>();
             outputs.append(&mut results);
         }
-        if self.client.used_default_logger {
-            eprint!("\n");
+        if let Some(logger) = logger.as_ref() {
+            logger.log("\n");
         }
         Ok(ResponseChunkCollection(outputs))
     }
