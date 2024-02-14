@@ -1,15 +1,16 @@
 use ai_subsystems::text_api;
+use ai_subsystems::text_api::request::OctoAiModels;
 use colored::Colorize;
 
 #[tokio::main]
 async fn main() -> Result<(), text_api::client::Error> {
-    // let api_key = std::fs::read_to_string("secrets/open-ai.key").unwrap();
-    // let api_url = text_api::client::URL::OPEN_AI_CHAT_COMPLETIONS;
     let api_key = std::fs::read_to_string("secrets/octo-ai.key").unwrap();
     let api_url = text_api::client::URL::OCTO_AI_CHAT_COMPLETIONS;
     let prompt = text_api::xml_dsl::Prompt::open("assets/basic.prompt.liquid", "question-1").unwrap();
     let request = prompt.request
-        .with_model("mixtral-8x7b-instruct-fp16")
+        // .with_model("mixtral-8x7b-instruct-fp16")
+        // .with_model("codellama-70b-instruct-fp16")
+        .with_model(OctoAiModels::mixtral_8x7b_instruct_fp16)
         .with_stream(true);
         // .with_stream(true)
         // .with_model("gpt-3.5-turbo");

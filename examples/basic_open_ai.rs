@@ -1,4 +1,5 @@
 use ai_subsystems::text_api;
+use ai_subsystems::text_api::request::OpenAiModels;
 use colored::Colorize;
 
 #[tokio::main]
@@ -7,7 +8,8 @@ async fn main() -> Result<(), text_api::client::Error> {
     let api_url = text_api::client::URL::OPEN_AI_CHAT_COMPLETIONS;
     let prompt = text_api::xml_dsl::Prompt::open("assets/basic.prompt.liquid", "question-1").unwrap();
     let request = prompt.request
-        .with_model("mixtral-8x7b-instruct-fp16")
+        // .with_model("gpt-3.5-turbo-0125")
+        .with_model(OpenAiModels::gpt_3_5_turbo_0125)
         .with_stream(true);
         // .with_stream(true)
         // .with_model("gpt-3.5-turbo");

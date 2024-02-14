@@ -343,7 +343,7 @@ pub struct Request {
 
 
 /// Use one of the constructors, i.e. `ResponseFormat::TEXT` or `ResponseFormat::JSON_OBJECT`.
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ResponseFormat {
     r#type: internal::ResponseFormatType,
 }
@@ -456,7 +456,7 @@ impl Message {
 pub mod internal {
     use serde::{Serialize, Deserialize};
 
-    #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+    #[derive(Debug, Clone, Serialize, Deserialize)]
     #[serde(rename_all = "snake_case")]
     pub enum ResponseFormatType {
         Text,
@@ -480,4 +480,111 @@ pub struct Function {
 #[derive(Debug, Clone, Serialize)]
 pub enum ToolChoice {
     
+}
+
+#[derive(Debug, Clone)]
+#[allow(non_camel_case_types)]
+pub enum OctoAiModels {
+    /// # `llama-2-13b-chat-fp16`
+    llama_2_13b_chat_fp16,
+    /// # `llama-2-70b-chat-fp16`
+    llama_2_70b_chat_fp16,
+    /// # `llama-2-70b-chat-int4`
+    llama_2_70b_chat_int4,
+    /// # `codellama-7b-instruct-fp16`
+    codellama_7b_instruct_fp16,
+    /// # `codellama-13b-instruct-fp16`
+    codellama_13b_instruct_fp16,
+    /// # `codellama-34b-instruct-fp16`
+    codellama_34b_instruct_fp16,
+    /// # `codellama-34b-instruct-int4`
+    codellama_34b_instruct_int4,
+    /// # `codellama-70b-instruct-fp16`
+    codellama_70b_instruct_fp16,
+    /// # `mistral-7b-instruct-fp16`
+    mistral_7b_instruct_fp16,
+    /// # `mixtral-8x7b-instruct-fp16`
+    mixtral_8x7b_instruct_fp16,
+    /// # `llamaguard-7b-fp16`
+    llamaguard_7b_fp16,
+}
+
+#[derive(Debug, Clone)]
+#[allow(non_camel_case_types)]
+pub enum OpenAiModels {
+    /// # GPT-4 Turbo
+    /// # `gpt-4-0125-preview`
+    /// The latest GPT-4 model intended to reduce cases of “laziness” where the model doesn’t complete a task. Returns a maximum of 4,096 output tokens.
+    gpt_4_0125_preview,
+    /// # `gpt-4-turbo-preview`
+    /// 
+    //// Currently points to `gpt-4-0125-preview`.
+    gpt_4_turbo_preview,
+    /// # `gpt-4-1106-preview`
+    /// GPT-4 Turbo model featuring improved instruction following, JSON mode, reproducible outputs, parallel function calling, and more. Returns a maximum of 4,096 output tokens. This preview model is not yet suited for production traffic.
+    gpt_4_1106_preview,
+    /// # `gpt-4-vision-preview`
+    /// GPT-4 with the ability to understand images, in addition to all other GPT-4 Turbo capabilities. Returns a maximum of 4,096 output tokens. This is a preview model version and not suited yet for production traffic.
+    gpt_4_vision_preview,
+    /// # `gpt-4`
+    /// Currently points to gpt-4-0613.
+    gpt_4,
+    /// # `gpt-4-0613`
+    /// Snapshot of gpt-4 from June 13th 2023 with improved function calling support.
+    gpt_4_0613,
+    /// # `gpt-4-32k`
+    /// Currently points to gpt-4-32k-0613. See continuous model upgrades. This model was never rolled out widely in favor of GPT-4 Turbo.
+    gpt_4_32k,
+    /// # `gpt-4-32k-0613`
+    /// Snapshot of gpt-4-32k from June 13th 2023 with improved function calling support. This model was never rolled out widely in favor of GPT-4 Turbo.
+    gpt_4_32k_0613,
+    /// # `gpt-3.5-turbo-0125`
+    /// # Updated GPT 3.5 Turbo
+    /// The latest GPT-3.5 Turbo model with higher accuracy at responding in requested formats and a fix for a bug which caused a text encoding issue for non-English language function calls. Returns a maximum of 4,096 output tokens.
+    gpt_3_5_turbo_0125,
+    /// # `gpt-3.5-turbo`
+    /// Currently points to gpt-3.5-turbo-0613. The gpt-3.5-turbo model alias will be automatically upgraded from gpt-3.5-turbo-0613 to gpt-3.5-turbo-0125 on February 16th.
+    gpt_3_5_turbo,
+    /// # `gpt-3.5-turbo-1106`
+    /// GPT-3.5 Turbo model with improved instruction following, JSON mode, reproducible outputs, parallel function calling, and more. Returns a maximum of 4,096 output tokens.
+    gpt_3_5_turbo_1106,
+    /// # `gpt-3.5-turbo-instruct`
+    /// Similar capabilities as GPT-3 era models. Compatible with legacy Completions endpoint and not Chat Completions.
+    gpt_3_5_turbo_instruct,
+}
+
+impl AsRef<str> for OctoAiModels {
+    fn as_ref(&self) -> &str {
+        match self {
+            OctoAiModels::llama_2_13b_chat_fp16 => "llama-2-13b-chat-fp16",
+            OctoAiModels::llama_2_70b_chat_fp16 => "llama-2-70b-chat-fp16",
+            OctoAiModels::llama_2_70b_chat_int4 => "llama-2-70b-chat-int4",
+            OctoAiModels::codellama_7b_instruct_fp16 => "codellama-7b-instruct-fp16",
+            OctoAiModels::codellama_13b_instruct_fp16 => "codellama-13b-instruct-fp16",
+            OctoAiModels::codellama_34b_instruct_fp16 => "codellama-34b-instruct-fp16",
+            OctoAiModels::codellama_34b_instruct_int4 => "codellama-34b-instruct-int4",
+            OctoAiModels::codellama_70b_instruct_fp16 => "codellama-70b-instruct-fp16",
+            OctoAiModels::mistral_7b_instruct_fp16 => "mistral-7b-instruct-fp16",
+            OctoAiModels::mixtral_8x7b_instruct_fp16 => "mixtral-8x7b-instruct-fp16",
+            OctoAiModels::llamaguard_7b_fp16 => "llamaguard-7b-fp16",
+        }
+    }
+}
+impl AsRef<str> for OpenAiModels {
+    fn as_ref(&self) -> &str {
+        match self {
+            OpenAiModels::gpt_4_0125_preview => "gpt-4-0125-preview",
+            OpenAiModels::gpt_4_turbo_preview => "gpt-4-turbo-preview",
+            OpenAiModels::gpt_4_1106_preview => "gpt-4-1106-preview",
+            OpenAiModels::gpt_4_vision_preview => "gpt-4-vision-preview",
+            OpenAiModels::gpt_4 => "gpt-4",
+            OpenAiModels::gpt_4_0613 => "gpt-4-0613",
+            OpenAiModels::gpt_4_32k => "gpt-4-32k",
+            OpenAiModels::gpt_4_32k_0613 => "gpt-4-32k-0613",
+            OpenAiModels::gpt_3_5_turbo_0125 => "gpt-3.5-turbo-0125",
+            OpenAiModels::gpt_3_5_turbo => "gpt-3.5-turbo",
+            OpenAiModels::gpt_3_5_turbo_1106 => "gpt-3.5-turbo-1106",
+            OpenAiModels::gpt_3_5_turbo_instruct => "gpt-3.5-turbo-instruct",
+        }
+    }
 }
