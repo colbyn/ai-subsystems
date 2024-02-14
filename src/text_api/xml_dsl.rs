@@ -1,6 +1,7 @@
 use std::{path::Path, str::FromStr};
 
 use super::client::Error;
+pub use liquid::object;
 
 #[derive(Debug, Clone)]
 pub struct PromptCollection {
@@ -14,14 +15,20 @@ pub struct Prompt {
 }
 
 impl PromptCollection {
-    pub fn open(file_path: impl AsRef<Path>) -> Result<Self, Error> {
+    pub fn open(file_path: impl AsRef<Path>, globals: &dyn liquid::ObjectView) -> Result<Self, Error> {
         let source = std::fs::read_to_string(file_path.as_ref())?;
-        Self::parse(source)
+        Self::parse(source, globals)
     } 
-    pub fn parse(contents: impl AsRef<str>) -> Result<Self, Error> {
+    pub fn parse(contents: impl AsRef<str>, globals: &dyn liquid::ObjectView) -> Result<Self, Error> {
         // let contents = std::fs::read_to_string(file_path.as_ref());
         let source = contents.as_ref();
-        let html = scraper::Html::parse_fragment(source);
+        let source = liquid::ParserBuilder::with_stdlib()
+            .build()
+            .unwrap()
+            .parse(&source)
+            .unwrap();
+        let source = source.render(&globals).unwrap();
+        let html = scraper::Html::parse_fragment(&source);
         let selector = scraper::Selector::parse("prompt").unwrap();
         let prompts = html
             .select(&selector)
@@ -43,16 +50,16 @@ impl PromptCollection {
 }
 
 impl Prompt {
-    pub fn open(file_path: impl AsRef<Path>, prompt_name: impl AsRef<str>) -> Result<Self, Error> {
+    pub fn open(file_path: impl AsRef<Path>, prompt_name: impl AsRef<str>, globals: &dyn liquid::ObjectView) -> Result<Self, Error> {
         let prompt_name = prompt_name.as_ref();
-        let collection = PromptCollection::open(file_path)?;
+        let collection = PromptCollection::open(file_path, globals)?;
         let prompt = collection.get(prompt_name)
             .ok_or(Box::new(PromptNotFound(prompt_name.to_string())))?;
         Ok(prompt)
     }
-    pub fn parse(contents: impl AsRef<str>, prompt_name: impl AsRef<str>) -> Result<Self, Error> {
+    pub fn parse(contents: impl AsRef<str>, prompt_name: impl AsRef<str>, globals: &dyn liquid::ObjectView) -> Result<Self, Error> {
         let prompt_name = prompt_name.as_ref();
-        let collection = PromptCollection::parse(contents)?;
+        let collection = PromptCollection::parse(contents, globals)?;
         let prompt = collection.get(prompt_name)
             .ok_or(Box::new(PromptNotFound(prompt_name.to_string())))?;
         Ok(prompt)

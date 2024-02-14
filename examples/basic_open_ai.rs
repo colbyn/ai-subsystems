@@ -6,7 +6,8 @@ use colored::Colorize;
 async fn main() -> Result<(), text_api::client::Error> {
     let api_key = std::fs::read_to_string("secrets/open-ai.key").unwrap();
     let api_url = text_api::client::URL::OPEN_AI_CHAT_COMPLETIONS;
-    let prompt = text_api::xml_dsl::Prompt::open("assets/basic.prompt.liquid", "question-1").unwrap();
+    let globals = text_api::xml_dsl::object!({});
+    let prompt = text_api::xml_dsl::Prompt::open("assets/basic.prompt.liquid", "question-1", &globals).unwrap();
     let request = prompt.request
         // .with_model("gpt-3.5-turbo-0125")
         .with_model(OpenAiModels::gpt_3_5_turbo_0125)
