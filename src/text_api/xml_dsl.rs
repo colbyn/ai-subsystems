@@ -18,7 +18,7 @@ impl PromptCollection {
     pub fn open(file_path: impl AsRef<Path>, globals: &dyn liquid::ObjectView) -> Result<Self, Error> {
         let source = std::fs::read_to_string(file_path.as_ref())?;
         Self::parse(source, globals)
-    } 
+    }
     pub fn parse(contents: impl AsRef<str>, globals: &dyn liquid::ObjectView) -> Result<Self, Error> {
         // let contents = std::fs::read_to_string(file_path.as_ref());
         let source = contents.as_ref();

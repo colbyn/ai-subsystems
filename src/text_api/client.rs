@@ -26,8 +26,8 @@ impl ApiCallBuilder {
         self.api_url = Some(api_url);
         self
     }
-    pub fn with_api_key(mut self, api_key: String) -> Self {
-        self.api_key = Some(api_key);
+    pub fn with_api_key(mut self, api_key: impl AsRef<str>) -> Self {
+        self.api_key = Some(api_key.as_ref().to_string());
         self
     }
     pub fn with_request_body(mut self, request_body: super::request::RequestBuilder) -> Self {
