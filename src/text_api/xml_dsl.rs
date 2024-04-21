@@ -36,13 +36,15 @@ impl PromptCollection {
             .collect::<Vec<_>>();
         Ok(PromptCollection { prompts })
     }
-    pub fn get(&self, prompt_name: impl AsRef<str>) -> Option<Prompt> {
-        let target = prompt_name.as_ref();
+    pub fn get(&self, target_name: impl AsRef<str>) -> Option<Prompt> {
+        let target_name = target_name.as_ref();
         for prompt in self.prompts.iter() {
-            if let Some(name) = prompt.name.as_ref() {
-                if name == &target {
-                    return Some(prompt.clone());
-                }
+            let is_match = prompt.name
+                .as_ref()
+                .map(|name| name == target_name)
+                .unwrap_or(false);
+            if is_match {
+                return Some(prompt.clone());
             }
         }
         None

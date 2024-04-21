@@ -48,7 +48,7 @@ impl ApiCallBuilder {
         let api_key = self.api_key?;
         let request_body = self.request_body?.build()?;
         let timeout = self.timeout;
-        let logger = self.logger;
+        let logger: Option<Box<dyn Logger>> = self.logger;
         let client = IApiCall { api_url, api_key, request_body, timeout, logger };
         Some(client)
     }
@@ -167,7 +167,11 @@ pub struct BatchApiCall {
 }
 
 impl BatchApiCall {
+    /// This calls the streaming client internally.
     pub async fn execute(self) -> Result<response::batch::Response, Error> {
+        self.execute_streaming().await
+    }
+    pub async fn execute_streaming(self) -> Result<response::batch::Response, Error> {
         let api_url = self.client.api_url.0;
         let api_key = self.client.api_key.as_str();
         let client = {
