@@ -381,7 +381,9 @@ pub enum Message {
         #[serde(skip_serializing_if = "Option::is_none")]
         #[serde(default)]
         name: Option<String>,
+        #[serde(skip_serializing_if = "Option::is_none")]
         tool_calls: Option<Vec<()>>,
+        #[serde(skip_serializing_if = "Option::is_none")]
         function_call: Option<()>,
     },
     Tool {
