@@ -168,10 +168,7 @@ pub struct BatchApiCall {
 
 impl BatchApiCall {
     /// This calls the streaming client internally.
-    pub async fn execute(self) -> Result<response::batch::Response, Error> {
-        self.execute_streaming().await
-    }
-    pub async fn execute_streaming(self) -> Result<response::batch::Response, Error> {
+    pub async fn execute(self) -> Result<response::batch::Response, Box<dyn std::error::Error>> {
         let api_url = self.client.api_url.0;
         let api_key = self.client.api_key.as_str();
         let client = {
@@ -222,7 +219,7 @@ pub struct ServerSentEvent {
 
 
 impl StreamingApiCall {
-    pub async fn execute(self) -> Result<ResponseChunkCollection, Error> {
+    pub async fn execute(self) -> Result<ResponseChunkCollection, Box<dyn std::error::Error>> {
         let api_url = self.client.api_url.0;
         let api_key = self.client.api_key.as_str();
         let client = {
@@ -320,8 +317,6 @@ impl URL {
 //―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
 // TODO
 //―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
-pub type Error = Box<dyn std::error::Error>;
-
 #[derive(Debug, Clone)]
 pub enum ApiError {
     /// # TODO

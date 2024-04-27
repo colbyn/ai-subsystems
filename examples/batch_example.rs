@@ -1,9 +1,8 @@
 use ai_subsystems::text_api;
-use ai_subsystems::text_api::request::{OpenAiModels, ResponseFormat};
 use colored::Colorize;
 
 #[tokio::main]
-async fn main() -> Result<(), text_api::client::Error> {
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let api_key = std::fs::read_to_string("secrets/open-ai.key").unwrap();
     let api_url = text_api::client::URL::OPEN_AI_CHAT_COMPLETIONS;
     let globals = text_api::xml_dsl::object!({});
