@@ -3,3 +3,4 @@ api.secret.key
 /secrets
 .DS_Store
 /logs
+text-to-speech-example.*
