@@ -307,11 +307,12 @@ impl ResponseChunkCollection {
 // TODO
 //―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
 #[derive(Debug, Clone, Copy)]
-pub struct URL(&'static str);
+pub struct URL(pub &'static str);
 
 impl URL {
     pub const OPEN_AI_CHAT_COMPLETIONS: Self = URL("https://api.openai.com/v1/chat/completions");
     pub const OCTO_AI_CHAT_COMPLETIONS: Self = URL("https://text.octoai.run/v1/chat/completions");
+    pub const MISTRAL_AI_CHAT_COMPLETIONS: Self = URL("https://api.mistral.ai/v1/chat/completions");
 }
 
 //―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
