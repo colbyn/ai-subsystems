@@ -7,7 +7,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let api_key = std::fs::read_to_string("secrets/octo-ai.key").unwrap();
     let api_url = text_api::client::URL::OCTO_AI_CHAT_COMPLETIONS;
     let globals = text_api::xml_dsl::object!({});
-    let prompt = text_api::xml_dsl::Prompt::open("assets/basic.prompt.liquid", "question-1", &globals).unwrap();
+    let prompt = text_api::xml_dsl::Prompt::open_with("assets/basic.prompt.liquid", "question-1", &globals).unwrap();
     // let prompt = text_api::xml_dsl::Prompt::open("assets/basic.prompt.liquid", "bad-question-1").unwrap();
     let request = prompt.request
         // .with_model("mixtral-8x7b-instruct-fp16")

@@ -6,7 +6,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let api_key = std::fs::read_to_string("secrets/open-ai.key").unwrap();
     let api_url = text_api::client::URL::OPEN_AI_CHAT_COMPLETIONS;
     let globals = text_api::xml_dsl::object!({});
-    let prompt = text_api::xml_dsl::Prompt::open("assets/basic.prompt.liquid", "prompt-3", &globals).unwrap();
+    let prompt = text_api::xml_dsl::Prompt::open_with("assets/basic.prompt.liquid", "prompt-3", &globals).unwrap();
     let request = prompt.request
         // .with_model("gpt-4-turbo-2024-04-09")
         // .with_response_format(ResponseFormat::JSON_OBJECT)
