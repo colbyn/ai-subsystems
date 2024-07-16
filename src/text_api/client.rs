@@ -256,7 +256,7 @@ impl StreamingApiCall {
         tokio::pin!(response);
         let logger = self.client.logger;
         while let Some(Ok(data)) = response.next().await {
-            let data = String::from_utf8(data.to_vec()).unwrap();
+            let data = String::from_utf8_lossy(&data.to_vec()).to_string();
             let mut results = data
                 .lines()
                 .filter(|line| {
